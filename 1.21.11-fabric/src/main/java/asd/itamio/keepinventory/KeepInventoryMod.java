@@ -17,6 +17,7 @@ public final class KeepInventoryMod implements ModInitializer {
         // Negative-control gate: the test harness disables product behaviour with -Dkip.probe.only=true.
         if (Boolean.getBoolean("kip.probe.only")) return;
         ServerLifecycleEvents.SERVER_STARTING.register(this::enforceAllLevels);
+        ServerLifecycleEvents.SERVER_STARTED.register(this::enforceAllLevels);
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             if (++tickCounter >= 20) {
                 tickCounter = 0;

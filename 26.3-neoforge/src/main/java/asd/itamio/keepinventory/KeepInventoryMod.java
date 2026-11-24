@@ -8,6 +8,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** Enforces keepInventory=true on every level, rechecking every 20 ticks. */
@@ -23,6 +24,11 @@ public final class KeepInventoryMod {
 
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
+        enforceAllLevels(event.getServer());
+    }
+
+    @SubscribeEvent
+    public void onServerStarted(ServerStartedEvent event) {
         enforceAllLevels(event.getServer());
     }
 

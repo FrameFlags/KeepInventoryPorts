@@ -29,7 +29,7 @@ jobs:
           java-version: ${{ matrix.java }}
       - uses: gradle/actions/setup-gradle@v4
         with:
-          cache: false
+          cache-disabled: true
           gradle-version: ${{ matrix.gradle }}
       - name: Build ${{ matrix.variant }}
         working-directory: ${{ matrix.variant }}

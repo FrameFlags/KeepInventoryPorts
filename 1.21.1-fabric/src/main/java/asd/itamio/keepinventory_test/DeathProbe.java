@@ -68,9 +68,7 @@ public final class DeathProbe {
             if (!restored) reasons.add("rule_not_restored");
             double x = player.getX(), y = player.getY(), z = player.getZ();
             player.teleportTo((ServerLevel) player.level(), x + 1000, y + 300, z + 1000, Set.of(), player.getYRot(), player.getXRot());
-            if (!player.hurt(player.level().damageSources().generic(), Float.MAX_VALUE)) {
-                reasons.add("lethal_damage_ignored");
-            }
+            player.kill();
             deathTick = currentTick;
             phase = 2;
             System.out.println("[KIP_PROBE] step=death restored=" + restored + " tick=" + deathTick);
