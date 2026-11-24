@@ -79,7 +79,7 @@ public final class DeathProbe {
             keepAtDeath = restored;
             double x = player.getX(), y = player.getY(), z = player.getZ();
             player.teleportTo((ServerLevel) player.level(), x + 1000, y + 300, z + 1000, Set.of(), player.getYRot(), player.getXRot());
-            player.kill();
+            player.die(player.level().damageSources().generic());
             deathTick = currentTick;
             phase = 2;
             System.out.println("[KIP_PROBE] step=death restored=" + restored + " tick=" + deathTick);
