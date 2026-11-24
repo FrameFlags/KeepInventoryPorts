@@ -31,6 +31,7 @@ public final class DeathProbe {
     private static boolean finished = false;
     private static boolean productPresent;
     private static boolean deathSeen;
+    private static boolean keepAtDeath;
 
     public static void begin(ServerPlayer player, int currentTick) {
         if (targetId != null || player == null) return;
@@ -66,6 +67,7 @@ public final class DeathProbe {
         if (phase == 1 && currentTick >= recheckTick) {
             boolean restored = Boolean.TRUE.equals(server.overworld().getGameRules().get(GameRules.KEEP_INVENTORY));
             if (!restored) reasons.add("rule_not_restored");
+            keepAtDeath = restored;
             double x = player.getX(), y = player.getY(), z = player.getZ();
             player.teleportTo((ServerLevel) player.level(), x + 1000, y + 300, z + 1000, Set.of(), player.getYRot(), player.getXRot(), false);
             player.kill((ServerLevel) player.level());
@@ -73,7 +75,13 @@ public final class DeathProbe {
             phase = 2;
             System.out.println("[KIP_PROBE] step=death restored=" + restored + " tick=" + deathTick);
         } else if (phase == 2 && player.isDeadOrDying()) {
-            if (!deathSeen) { deathSeen = true; deathTick = currentTick; }
+            if (!deathSeen) {
+                deathSeen = true;
+                deathTick = currentTick;
+                // Drive respawn ourselves: HeadlessMC may still be on the loading screen.
+                server.getPlayerList().respawn(player, keepAtDeath, net.minecraft.world.entity.Entity.RemovalReason.KILLED);
+                System.out.println("[KIP_PROBE] step=respawn tick=" + currentTick);
+            }
         } else if (phase == 2 && deathSeen && currentTick - deathTick > 5 && !player.isDeadOrDying() && player.getHealth() > 0f) {
             String after = signature(player);
             if (!after.contains(MARKER)) reasons.add("item_lost_on_death");

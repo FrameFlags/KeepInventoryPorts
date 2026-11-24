@@ -31,6 +31,9 @@ jobs:
         with:
           cache-disabled: true
           gradle-version: ${{ matrix.gradle }}
+      - name: Clear NeoForm cache
+        if: contains(matrix.variant, 'neoforge')
+        run: rm -rf "${{ matrix.variant }}/build/tmp/.cache"
       - name: Build ${{ matrix.variant }}
         working-directory: ${{ matrix.variant }}
         run: ./gradlew clean build --no-daemon --stacktrace
