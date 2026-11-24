@@ -8,7 +8,7 @@ Recovered from the published 2.6 KB NeoForge 1.21.11 jar (`asd.itamio.keepinvent
 - On server start, iterate `server.getAllLevels()` and set `GameRules.KEEP_INVENTORY` to `true` for every level.
 - On `ServerTickEvent.Post` / `ServerTickEvents.END_SERVER_TICK`, increment a counter; **every 20 ticks** re-check each level and re-set the rule to `true` if it was changed to `false`.
 - No other behavior: no client code, no config, no item logic. The rule itself is what preserves items on death.
-- The test harness disables event registration with `-Dkip.probe.only=true` to create a genuine negative control.
+- Negative control is created by **omitting the product jar**; a defensive `-Dkip.probe.only=true` gate also disables event registration but is not used by CI.
 
 ## In-game scenario (all four cells)
 
@@ -30,11 +30,11 @@ The probe writes `kip-result.txt` (root and `run/`) before any process exit, and
 
 ## Negative control
 
-With the product jar absent (or event registration gated off), a fresh world defaults to `KEEP_INVENTORY=false`. The probe must report `FAIL product=false` with `rule_false_at_join`, `rule_not_restored`, and `item_lost_on_death`. If the negative control passes, the test is invalid and the whole plan stops.
+With the product jar absent, a fresh world defaults to `KEEP_INVENTORY=false`. The probe must report `FAIL product=false` with `rule_false_at_join`, `rule_not_restored`, and `item_lost_on_death`. If the negative control passes, the test is invalid and the whole plan stops.
 
 ## What this test proves / does not prove
 
-Proves: real player joined, rule set at startup, 20-tick re-assertion works, player died and respawned, the unique item survived. Does not prove: fall-damage physics (lethal damage is applied directly), rule persistence across server restarts, modpack compatibility, or client rendering.
+Proves: real player joined, rule set at startup, 20-tick re-assertion works, player died (observed via dead state) and respawned, the unique item survived. Does not prove: fall-damage physics (lethal damage is applied directly), rule persistence across server restarts, modpack compatibility, or client rendering.
 
 ## Target cells
 

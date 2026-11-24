@@ -29,6 +29,8 @@ public final class DeathProbe {
     private static int deathTick;
     private static String before = "";
     private static boolean finished = false;
+    private static boolean productPresent;
+    private static boolean deathSeen;
 
     public static void begin(ServerPlayer player, int currentTick) {
         if (targetId != null || player == null) return;
@@ -37,6 +39,7 @@ public final class DeathProbe {
         MinecraftServer server = player.level().getServer();
         if (server == null) { fail("no_server", "", ""); return; }
         boolean initial = server.overworld().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY);
+        productPresent = initial;
         if (!initial) reasons.add("rule_false_at_join");
         ItemStack marker = new ItemStack(Items.PAPER);
         marker.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME, Component.literal(MARKER));
@@ -50,30 +53,37 @@ public final class DeathProbe {
 
     public static void onTick(MinecraftServer server, int currentTick) {
         if (finished || targetId == null || server == null) {
-            if (!finished && targetId == null && currentTick - startTick > 200 && currentTick > 200) {
+            if (!finished && targetId == null && currentTick - startTick > 600 && currentTick > 600) {
                 fail("no_player_join", "", "");
             }
             return;
         }
         ServerPlayer player = server.getPlayerList().getPlayer(targetId);
         if (player == null) {
-            if (currentTick - deathTick > 200 && phase == 2) fail("no_respawn", before, "");
+            if (deathSeen && currentTick - deathTick > 600 && phase == 2) fail("no_respawn", before, "");
             return;
         }
         if (phase == 1 && currentTick >= recheckTick) {
             boolean restored = server.overworld().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY);
             if (!restored) reasons.add("rule_not_restored");
             double x = player.getX(), y = player.getY(), z = player.getZ();
-            player.teleportTo((ServerLevel) player.level(), x, y + 300, z, Set.of(), player.getYRot(), player.getXRot(), false);
-            player.hurt(player.level().damageSources().generic(), Float.MAX_VALUE);
+            player.teleportTo((ServerLevel) player.level(), x + 1000, y + 300, z + 1000, Set.of(), player.getYRot(), player.getXRot());
+            if (!player.hurt(player.level().damageSources().generic(), Float.MAX_VALUE)) {
+                reasons.add("lethal_damage_ignored");
+            }
             deathTick = currentTick;
             phase = 2;
             System.out.println("[KIP_PROBE] step=death restored=" + restored + " tick=" + deathTick);
-        } else if (phase == 2 && currentTick - deathTick > 5 && !player.isDeadOrDying() && player.getHealth() > 0f) {
+        } else if (phase == 2 && player.isDeadOrDying()) {
+            if (!deathSeen) { deathSeen = true; deathTick = currentTick; }
+        } else if (phase == 2 && deathSeen && currentTick - deathTick > 5 && !player.isDeadOrDying() && player.getHealth() > 0f) {
             String after = signature(player);
             if (!after.contains(MARKER)) reasons.add("item_lost_on_death");
             emit(after, currentTick);
-        } else if (phase == 2 && currentTick - deathTick > 200) {
+        } else if (phase == 2 && !deathSeen && currentTick - deathTick > 200) {
+            reasons.add("no_death");
+            emit(signature(player), currentTick);
+        } else if (phase == 2 && deathSeen && currentTick - deathTick > 600) {
             fail("no_respawn", before, signature(player));
         }
     }
@@ -91,7 +101,7 @@ public final class DeathProbe {
 
     private static void emit(String after, int respawnTick) {
         String verdict = reasons.isEmpty() ? "PASS" : "FAIL";
-        String line = PREFIX + " " + verdict + " product=" + Boolean.TRUE.equals(!reasons.contains("rule_false_at_join"))
+        String line = PREFIX + " " + verdict + " product=" + productPresent
                 + " reasons=" + String.join(",", reasons)
                 + " before=" + before + " after=" + after
                 + " death=" + deathTick + " respawn=" + respawnTick;

@@ -7,7 +7,7 @@
   "authors": ["Itamio"],
   "contact": { "sources": "https://github.com/Sekai0NI0itamio/keep-inventory", "homepage": "https://www.curseforge.com/minecraft/mc-mods/keep-inventory" },
   "license": "MIT",
-  "environment": "server",
+  "environment": "*",
   "entrypoints": { "main": ["asd.itamio.keepinventory.KeepInventoryMod"] },
   "depends": { "fabricloader": ">=0.15.0", "minecraft": "~26.3", "java": ">=25", "fabric-api": "*" }
 }
