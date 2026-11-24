@@ -20,8 +20,14 @@ test { useJUnitPlatform(); testLogging { events "passed", "failed", "skipped" } 
 tasks.named('jar') { exclude 'asd/itamio/keepinventory_test/**' }
 
 tasks.register('testmodJar', Jar) {
- archiveBaseName = "keepinventory-testmod-1.21.11-fabric"
+ archiveBaseName = "keepinventory-testmod-unremapped-1.21.11-fabric"
  from(sourceSets.main.output.classesDirs) { include 'asd/itamio/keepinventory_test/**' }
  from('src/testmod/resources')
 }
-build.dependsOn testmodJar
+tasks.register('remapTestmodJar', net.fabricmc.loom.task.RemapJarTask) {
+    dependsOn testmodJar
+    inputFile = testmodJar.archiveFile
+    archiveFileName = "keepinventory-testmod-1.21.11-fabric-1.0.0.jar"
+    destinationDirectory = layout.buildDirectory.dir("libs")
+}
+build.dependsOn remapTestmodJar

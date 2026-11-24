@@ -14,11 +14,11 @@ jobs:
       matrix:
         include:
           - { variant: 26.3-fabric,    mc: '26.3',    loader: fabric,   mrt: fabric,   java: '25', gradle: '9.8.2', api: 0.165.0, product: 'true' }
-          - { variant: 26.3-neoforge,  mc: '26.3',    loader: neoforge, mrt: neoforge, java: '25', gradle: '9.2.1', api: '',      product: 'true' }
+          - { variant: 26.3-neoforge,  mc: '26.3',    loader: neoforge, mrt: neoforge, java: '25', gradle: '9.2.1', api: 'none',      product: 'true' }
           - { variant: 1.21.11-fabric, mc: '1.21.11', loader: fabric,   mrt: fabric,   java: '21', gradle: '9.5.0', api: 0.141.4, product: 'true' }
           - { variant: 1.21.1-fabric,  mc: '1.21.1',  loader: fabric,   mrt: fabric,   java: '21', gradle: '9.5.0', api: 0.107.0, product: 'true' }
           - { variant: 26.3-fabric,    mc: '26.3',    loader: fabric,   mrt: fabric,   java: '25', gradle: '9.8.2', api: 0.165.0, product: 'false', control: negative }
-          - { variant: 26.3-neoforge,  mc: '26.3',    loader: neoforge, mrt: neoforge, java: '25', gradle: '9.2.1', api: '',      product: 'false', control: negative }
+          - { variant: 26.3-neoforge,  mc: '26.3',    loader: neoforge, mrt: neoforge, java: '25', gradle: '9.2.1', api: 'none',      product: 'false', control: negative }
           - { variant: 1.21.11-fabric, mc: '1.21.11', loader: fabric,   mrt: fabric,   java: '21', gradle: '9.5.0', api: 0.141.4, product: 'false', control: negative }
           - { variant: 1.21.1-fabric,  mc: '1.21.1',  loader: fabric,   mrt: fabric,   java: '21', gradle: '9.5.0', api: 0.107.0, product: 'false', control: negative }
     steps:
