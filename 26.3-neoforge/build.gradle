@@ -1,0 +1,24 @@
+plugins { id 'java-library'; id 'maven-publish'; id 'net.neoforged.gradle.userdev' version '7.1.39' }
+version = mod_version; group = mod_group_id
+base { archivesName = "keepinventory-26.3-neoforge" }
+repositories { }
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+configurations { runtimeClasspath.extendsFrom localRuntime }
+dependencies {
+ implementation "net.neoforged:neoforge:${neo_version}"
+ testImplementation "org.junit.jupiter:junit-jupiter:5.10.3"
+ testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.10.3"
+}
+test { useJUnitPlatform(); testLogging { events "passed", "failed", "skipped" } }
+tasks.withType(ProcessResources).configureEach {
+ def replaceProperties = [minecraft_version:minecraft_version,minecraft_version_range:minecraft_version_range,neo_version:neo_version,loader_version_range:loader_version_range,mod_id:mod_id,mod_name:mod_name,mod_license:mod_license,mod_version:mod_version,mod_group_id:mod_group_id,mod_authors:mod_authors,mod_description:mod_description]
+ inputs.properties replaceProperties
+ filesMatching(['META-INF/neoforge.mods.toml']) { expand replaceProperties }
+}
+tasks.named('jar') { exclude 'asd/itamio/keepinventory_test/**' }
+tasks.register('testmodJar', Jar) {
+ archiveBaseName = "keepinventory-testmod-26.3-neoforge"
+ from(sourceSets.main.output.classesDirs) { include 'asd/itamio/keepinventory_test/**' }
+ from('src/testmod/resources')
+}
+build.dependsOn testmodJar

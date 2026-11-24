@@ -1,0 +1,7 @@
+build/
+.gradle/
+run/
+*.log
+kip-result.txt
+.ipynb_checkpoints/
+.DS_Store
