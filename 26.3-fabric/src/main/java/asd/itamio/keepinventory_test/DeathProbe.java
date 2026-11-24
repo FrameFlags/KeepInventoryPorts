@@ -23,6 +23,7 @@ public final class DeathProbe {
     private static final String PREFIX = "KEEPINVENTORY_TEST_RESULT:";
     private static final List<String> reasons = new ArrayList<>();
     private static UUID targetId;
+    private static ServerPlayer trackedPlayer;
     private static int phase = 0;
     private static int startTick;
     private static int recheckTick;
@@ -36,6 +37,7 @@ public final class DeathProbe {
     public static void begin(ServerPlayer player, int currentTick) {
         if (targetId != null || player == null) return;
         targetId = player.getUUID();
+        trackedPlayer = player;
         startTick = currentTick;
         MinecraftServer server = player.level().getServer();
         if (server == null) { fail("no_server", "", ""); return; }
@@ -61,7 +63,14 @@ public final class DeathProbe {
         }
         ServerPlayer player = server.getPlayerList().getPlayer(targetId);
         if (player == null) {
-            if (deathSeen && currentTick - deathTick > 600 && phase == 2) fail("no_respawn", before, "");
+            if (phase == 2 && !deathSeen && trackedPlayer != null) {
+                deathSeen = true;
+                deathTick = currentTick;
+                server.getPlayerList().respawn(trackedPlayer, keepAtDeath, net.minecraft.world.entity.Entity.RemovalReason.KILLED);
+                System.out.println("[KIP_PROBE] step=respawn tick=" + currentTick);
+            } else if (phase == 2 && deathSeen && currentTick - deathTick > 600) {
+                fail("no_respawn", before, "");
+            }
             return;
         }
         if (phase == 1 && currentTick >= recheckTick) {
