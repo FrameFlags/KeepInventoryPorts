@@ -4,6 +4,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
@@ -33,12 +34,14 @@ public final class DeathProbe {
     private static boolean productPresent;
     private static boolean deathSeen;
     private static boolean keepAtDeath;
+    private static int deathsBefore;
 
     public static void onJoin(ServerPlayer player, int currentTick) {
         if (targetId == null && player != null) {
             targetId = player.getUUID();
             trackedPlayer = player;
             startTick = currentTick;
+            start(player, currentTick);
         }
     }
 
@@ -51,6 +54,7 @@ public final class DeathProbe {
         if (server == null) { fail("no_server", "", ""); return; }
         boolean initial = server.overworld().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY);
         productPresent = initial;
+        deathsBefore = player.getStats().getValue(Stats.CUSTOM.get(Stats.DEATHS));
         if (!initial) reasons.add("rule_false_at_join");
         ItemStack marker = new ItemStack(Items.PAPER);
         marker.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME, Component.literal(MARKER));
@@ -99,15 +103,16 @@ public final class DeathProbe {
             deathTick = currentTick;
             phase = 2;
             System.out.println("[KIP_PROBE] step=death restored=" + restored + " tick=" + deathTick);
-        } else if (phase == 2 && player.isDeadOrDying()) {
-            if (!deathSeen) {
-                deathSeen = true;
-                deathTick = currentTick;
-                // Drive respawn ourselves: HeadlessMC may still be on the loading screen.
-                server.getPlayerList().respawn(player, keepAtDeath, net.minecraft.world.entity.Entity.RemovalReason.KILLED);
-                System.out.println("[KIP_PROBE] step=respawn tick=" + currentTick);
+        } else if (phase == 2 && !deathSeen
+                && player.getStats().getValue(Stats.CUSTOM.get(Stats.DEATHS)) > deathsBefore) {
+            deathSeen = true;
+            deathTick = currentTick;
+            if (player == trackedPlayer) {
+                server.getPlayerList().respawn(trackedPlayer, keepAtDeath, net.minecraft.world.entity.Entity.RemovalReason.KILLED);
             }
-        } else if (phase == 2 && deathSeen && currentTick - deathTick > 5 && !player.isDeadOrDying() && player.getHealth() > 0f) {
+            System.out.println("[KIP_PROBE] step=death_confirmed tick=" + currentTick);
+        } else if (phase == 2 && deathSeen && player != trackedPlayer && currentTick - deathTick > 5
+                && !player.isDeadOrDying() && player.getHealth() > 0f) {
             String after = signature(player);
             if (!after.contains(MARKER)) reasons.add("item_lost_on_death");
             emit(after, currentTick);
