@@ -46,7 +46,7 @@ public final class DeathProbe {
     }
 
     private static void start(ServerPlayer player, int currentTick) {
-        if (targetId != null || player == null) return;
+        if (player == null) return;
         targetId = player.getUUID();
         trackedPlayer = player;
         startTick = currentTick;
