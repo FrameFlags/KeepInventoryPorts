@@ -40,7 +40,7 @@ Proves: real player joined, rule set at startup, 20-tick re-assertion works, pla
 
 | Cell | MC | Loader | Java | Fabric API | Gradle |
 |---|---|---|---|---|---|
-| A | 26.3 | Fabric | 25 | 0.165.0+26.3 | 9.7.1 |
+| A | 26.3 | Fabric | 25 | 0.165.0+26.3 | 9.8.2 |
 | B | 26.3 | NeoForge | 25 | — | 9.2.1 |
 | C | 1.21.11 | Fabric | 21 | 0.141.4+1.21.11 | 9.5.0 |
 | D | 1.21.1 | Fabric | 21 | 0.107.0+1.21.1 | 9.5.0 |

@@ -24,9 +24,9 @@ Attribution: original mod by Itamio, MIT. Original source (now unavailable): htt
 - Build workflow: https://github.com/FrameFlags/KeepInventoryPorts/actions/runs/45375610722 — all four variants `success`.
 - In-game behavior workflow: https://github.com/FrameFlags/KeepInventoryPorts/actions/runs/45375610114 — all eight legs `success` (4 product-present + 4 negative control).
 
-Every green leg emitted `KEEPINVENTORY_TEST_RESULT: PASS product=true` with the marker present after a real death (`death=` tick) and respawn (`respawn=` tick). Every negative leg emitted `FAIL product=false` with `rule_not_restored,item_lost_on_death`.
+Every green leg emitted `KEEPINVENTORY_TEST_RESULT: PASS product=true` with the marker present after a real death (`death=` tick) and respawn (`respawn=` tick). Every negative leg emitted `FAIL product=false` with `rule_false_at_join,rule_not_restored,item_lost_on_death`.
 
-CI uses `mc-runtime-test` to launch a real Minecraft **client** per cell (Xvfb), with both product and test-only probe jars staged in `mods/`. The probe:
+CI uses `mc-runtime-test` to launch a real Minecraft **client** per cell (Xvfb), with the probe jar staged in `mods/` and the product jar staged only on product-present legs (negative-control legs omit it). The probe:
 1. observes `KEEP_INVENTORY=true` at join (product present),
 2. sets the rule to `false`, waits 21 ticks, and asserts the mod re-asserted it to `true` (the exact 20-tick loop from the original),
 3. gives the player a uniquely named paper, teleports far from spawn, kills the player (`Player.die`), confirms a real death via the vanilla death stat, drives respawn server-side, and checks the marker survived.

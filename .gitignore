@@ -1,6 +1,7 @@
 build/
 .gradle/
 run/
+runs/
 *.log
 kip-result.txt
 .ipynb_checkpoints/
