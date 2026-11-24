@@ -67,7 +67,7 @@ jobs:
           cat kip-result.txt run/kip-result.txt 2>/dev/null >> kip.log || true
           echo "=== behavior marker ==="
           grep 'KEEPINVENTORY_TEST_RESULT:' kip.log || true
-          test "$(grep -h 'KEEPINVENTORY_TEST_RESULT:' kip-result.txt run/kip-result.txt kip.log 2>/dev/null | sort -u | wc -l)" -eq 1
+          test "$(grep -h '^KEEPINVENTORY_TEST_RESULT:' kip-result.txt run/kip-result.txt 2>/dev/null | sort -u | wc -l)" -eq 1
           if [ "${{ matrix.product }}" = "true" ]; then
             grep -q 'KEEPINVENTORY_TEST_RESULT: PASS' kip.log
             grep -q 'product=true' kip.log
