@@ -18,3 +18,17 @@ Each variant builds two jars:
 The probe is never shipped to CurseForge. CI runs a real client, gives the player a unique item, teleports them high, kills them, waits for respawn, and asserts the item survived — plus a negative control with the product jar absent.
 
 Attribution: original mod by Itamio, MIT. Original source (now unavailable): https://github.com/Sekai0NI0itamio/keep-inventory · CurseForge: https://www.curseforge.com/minecraft/mc-mods/keep-inventory
+
+## Verification (green)
+
+- Build workflow: https://github.com/FrameFlags/KeepInventoryPorts/actions/runs/45375610722 — all four variants `success`.
+- In-game behavior workflow: https://github.com/FrameFlags/KeepInventoryPorts/actions/runs/45375610114 — all eight legs `success` (4 product-present + 4 negative control).
+
+Every green leg emitted `KEEPINVENTORY_TEST_RESULT: PASS product=true` with the marker present after a real death (`death=` tick) and respawn (`respawn=` tick). Every negative leg emitted `FAIL product=false` with `rule_not_restored,item_lost_on_death`.
+
+CI uses `mc-runtime-test` to launch a real Minecraft **client** per cell (Xvfb), with both product and test-only probe jars staged in `mods/`. The probe:
+1. observes `KEEP_INVENTORY=true` at join (product present),
+2. sets the rule to `false`, waits 21 ticks, and asserts the mod re-asserted it to `true` (the exact 20-tick loop from the original),
+3. gives the player a uniquely named paper, teleports far from spawn, kills the player (`Player.die`), confirms a real death via the vanilla death stat, drives respawn server-side, and checks the marker survived.
+
+`1.21.x` probe jars are passed through Loom's `remapJar` (named -> intermediary) before CI stages them; `26.3` uses Mojang names directly; `26.3-neoforge` uses ModDevGradle.

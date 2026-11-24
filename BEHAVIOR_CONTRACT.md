@@ -34,7 +34,7 @@ With the product jar absent, a fresh world defaults to `KEEP_INVENTORY=false`. T
 
 ## What this test proves / does not prove
 
-Proves: real player joined, rule set at startup, 20-tick re-assertion works, player died (observed via dead state) and respawned, the unique item survived. Does not prove: fall-damage physics (lethal damage is applied directly), rule persistence across server restarts, modpack compatibility, or client rendering.
+Proves: real player joined, rule set at startup, 20-tick re-assertion works, player died (confirmed via vanilla death-stat delta) and respawned, the unique item survived. Does not prove: fall-damage physics (lethal damage is applied directly), rule persistence across server restarts, modpack compatibility, or client rendering.
 
 ## Target cells
 
