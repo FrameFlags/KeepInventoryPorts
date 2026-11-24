@@ -34,7 +34,15 @@ public final class DeathProbe {
     private static boolean deathSeen;
     private static boolean keepAtDeath;
 
-    public static void begin(ServerPlayer player, int currentTick) {
+    public static void onJoin(ServerPlayer player, int currentTick) {
+        if (targetId == null && player != null) {
+            targetId = player.getUUID();
+            trackedPlayer = player;
+            startTick = currentTick;
+        }
+    }
+
+    private static void start(ServerPlayer player, int currentTick) {
         if (targetId != null || player == null) return;
         targetId = player.getUUID();
         trackedPlayer = player;
@@ -70,6 +78,14 @@ public final class DeathProbe {
                 System.out.println("[KIP_PROBE] step=respawn tick=" + currentTick);
             } else if (phase == 2 && deathSeen && currentTick - deathTick > 600) {
                 fail("no_respawn", before, "");
+            }
+            return;
+        }
+        if (phase == 0) {
+            if (player != null && player.tickCount >= 100) {
+                start(player, currentTick);
+            } else if (currentTick > 900) {
+                fail("no_player_ready", "", "");
             }
             return;
         }

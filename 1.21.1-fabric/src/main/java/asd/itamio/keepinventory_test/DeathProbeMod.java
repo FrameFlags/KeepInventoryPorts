@@ -8,7 +8,7 @@ public final class DeathProbeMod implements ModInitializer {
     @Override
     public void onInitialize() {
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
-                DeathProbe.begin(handler.getPlayer(), server.getTickCount()));
+                DeathProbe.onJoin(handler.getPlayer(), server.getTickCount()));
         ServerTickEvents.END_SERVER_TICK.register(server -> DeathProbe.onTick(server, server.getTickCount()));
     }
 }

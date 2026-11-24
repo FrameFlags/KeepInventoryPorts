@@ -19,7 +19,7 @@ public final class DeathProbeNeoForgeMod {
     @SubscribeEvent
     public void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (((net.minecraft.server.level.ServerPlayer) event.getEntity()).level().getServer() != null) {
-            DeathProbe.begin((net.minecraft.server.level.ServerPlayer) event.getEntity(), ticks);
+            DeathProbe.onJoin((net.minecraft.server.level.ServerPlayer) event.getEntity(), ticks);
         }
     }
 
