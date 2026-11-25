@@ -86,15 +86,39 @@ tasks.named('jar', Jar).configure {
                 'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
+    finalizedBy 'reobfJar'
 }
 
+// Test-only jar: probe classes + probe resources, named to match the CI staging step.
 tasks.register('testmodJar', Jar) {
     archiveFileName = "keepinventory-testmod-1.20.1-forge-1.0.0.jar"
     from(sourceSets.main.output.classesDirs) { include 'asd/itamio/keepinventory_test/**' }
     from('src/testmod/resources')
 }
 
-build.dependsOn testmodJar
+// The probe is compiled against official (Mojang) names; reobfuscate it like the product jar
+// so it runs on a production Forge server. Reuse the exact configuration of reobfJar.
+tasks.register('reobfTestmodJar', net.minecraftforge.gradle.userdev.tasks.RenameJarInPlace) {
+    dependsOn testmodJar
+}
+afterEvaluate {
+    def base = tasks.named('reobfJar').get()
+    tasks.named('reobfTestmodJar').configure {
+        input.set(testmodJar.archiveFile)
+        mappings.set(base.mappings)
+        extraMappings.from(base.extraMappings)
+        libraries.from(base.libraries)
+        argsFile.set(base.argsFile)
+        tool.set(base.tool)
+        args.set(base.args)
+        jvmArgs.set(base.jvmArgs)
+        javaLauncher.set(base.javaLauncher)
+        debug.set(base.debug)
+        useArgsFile = base.useArgsFile
+    }
+}
+
+build.dependsOn reobfTestmodJar
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'

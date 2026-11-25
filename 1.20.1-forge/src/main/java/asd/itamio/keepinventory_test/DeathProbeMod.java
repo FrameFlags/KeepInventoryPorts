@@ -12,6 +12,8 @@ import net.minecraftforge.fml.common.Mod;
 public final class DeathProbeMod {
     public static final String MOD_ID = "keepinventory_test";
 
+    private int tickCounter;
+
     public DeathProbeMod() {
         MinecraftForge.EVENT_BUS.register(this);
     }
@@ -19,13 +21,13 @@ public final class DeathProbeMod {
     @SubscribeEvent
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
-            DeathProbe.onJoin(player, player.level().getServer().getTickCount());
+            DeathProbe.onJoin(player, tickCounter);
         }
     }
 
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
-        DeathProbe.onTick(event.getServer(), event.getServer().getTickCount());
+        DeathProbe.onTick(event.getServer(), ++tickCounter);
     }
 }
