@@ -33,7 +33,7 @@ Every leg also fails if the log contains a gamerule-change broadcast, so the sil
 
 For all cells except `1.12.2-forge`, the client is launched with `headlesshq/mc-runtime-test@5.0.0` under Xvfb. For `1.12.2-forge`, CI boots a real Forge 14.23.5.2847 dedicated server and connects a Mineflayer bot so the same server-side probe and negative control still run.
 
-Fabric probe jars on 1.20.1/1.21.x are remapped to intermediary with Loom `remapJar`; Forge probe jars are reobfuscated with ForgeGradle; `26.3` uses Mojang names directly; NeoForge variants use ModDevGradle/NeoGradle.
+Fabric probe jars on 1.20.1/1.21.x are remapped to intermediary with Loom `remapTestmodJar`; 1.20.1-forge and 1.12.2-forge probe jars are reobfuscated with ForgeGradle, while `1.21.1-forge` ships official/Mojang names; `26.3` uses Mojang names directly; NeoForge variants use ModDevGradle/NeoGradle.
 
 Attribution: original mod by Itamio, MIT. Original source (now unavailable): https://github.com/Sekai0NI0itamio/keep-inventory · CurseForge: https://www.curseforge.com/minecraft/mc-mods/keep-inventory
 

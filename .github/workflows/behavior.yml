@@ -122,6 +122,11 @@ jobs:
           cat kip-result.txt run/kip-result.txt 2>/dev/null >> kip.log || true
           echo "=== behavior marker ==="
           grep 'KEEPINVENTORY_TEST_RESULT:' kip.log || true
+          if grep -qiE 'gamerule[ .]keep[_ ]?inventory.*(updated|changed|true|false)' kip.log; then
+            echo "FAIL: gamerule change was broadcast"
+            grep -iE 'gamerule[ .]keep[_ ]?inventory' kip.log || true
+            exit 1
+          fi
           test "$(grep -h '^KEEPINVENTORY_TEST_RESULT:' kip-result.txt run/kip-result.txt 2>/dev/null | sort -u | wc -l)" -eq 1
           if [ "${{ matrix.product }}" = "true" ]; then
             grep -q 'KEEPINVENTORY_TEST_RESULT: PASS' kip.log

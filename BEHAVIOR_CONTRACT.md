@@ -17,7 +17,7 @@ Recovered from the published 2.6 KB NeoForge 1.21.11 jar (`asd.itamio.keepinvent
 2. Probe observes player join; asserts `KEEP_INVENTORY == true` at join.
 3. Probe gives the player a unique named paper stack (`KIP_PROBE_MARKER_7F3A`) in slot 0 and records an inventory signature.
 4. Probe deliberately sets the rule to `false`, then waits 21 ticks and asserts the product restored it to `true`.
-5. Probe teleports the player ~300 blocks up and applies lethal damage. mc-runtime-test auto-respawns on the death screen.
+5. Probe teleports the player ~300 blocks up and applies lethal damage. The probe then drives respawn server-side via `ServerPlayerList.respawn`; mc-runtime-test only supplies the client body.
 6. On respawn, probe checks the unique marker stack is still present and emits exactly one terminal result line.
 7. CI fails the leg if any gamerule-change broadcast appears in the collected logs.
 
@@ -40,7 +40,7 @@ Proves: real player joined, rule set at startup, 20-tick re-assertion works, pla
 
 ## Target cells
 
-| Cell | MC | Loader | Java | Runtime API pin | Gradle |
+| Cell | MC | Loader | Java | Compile/runtime API pin | Gradle |
 |---|---|---|---|---|---|
 | A | 26.3 | Fabric | 25 | Fabric API 0.165.0 | 9.8.2 |
 | B | 26.3 | NeoForge | 25 | NeoForge 26.3.0.101 | 9.2.1 |
@@ -51,6 +51,6 @@ Proves: real player joined, rule set at startup, 20-tick re-assertion works, pla
 | G | 1.21.4 | Fabric | 21 | Fabric API 0.119.4 | 9.5.0 |
 | H | 1.21.4 | NeoForge | 21 | NeoForge 21.4.161 | 9.2.1 |
 | I | 1.21.1 | Forge | 21 | Forge 52.1.21 | 8.14.5 |
-| J | 1.20.1 | Fabric | 21 (compile 17) | Fabric API 0.92.11 | 9.5.1 |
+| J | 1.20.1 | Fabric | 21 (compile 17) | Fabric API 0.92.2 / runtime 0.92.11 | 9.5.1 |
 | K | 1.20.1 | Forge | 17 | Forge 47.4.20 | 8.14.5 |
 | L | 1.12.2 | Forge | 8 | Forge 14.23.5.2847 | 4.10.3 |

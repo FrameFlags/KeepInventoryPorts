@@ -60,7 +60,7 @@ public final class DeathProbe {
         marker.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME, Component.literal(MARKER));
         player.getInventory().setItem(0, marker);
         before = signature(player);
-        server.overworld().getGameRules().getRule(GameRules.RULE_KEEPINVENTORY).set(false, server);
+        server.overworld().getGameRules().getRule(GameRules.RULE_KEEPINVENTORY).set(false, null);
         recheckTick = currentTick + 21;
         phase = 1;
         System.out.println("[KIP_PROBE] step=begin initialRule=" + initial + " before=" + before);
