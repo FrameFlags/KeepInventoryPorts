@@ -86,6 +86,7 @@ jobs:
           curl -fsSLO https://maven.minecraftforge.net/net/minecraftforge/forge/1.12.2-14.23.5.2847/forge-1.12.2-14.23.5.2847-installer.jar
           java -jar forge-1.12.2-14.23.5.2847-installer.jar --installServer > install.log 2>&1 || { cat install.log; exit 1; }
           echo "eula=true" > eula.txt
+          echo "online-mode=false" > server.properties
           mkdir -p mods
           cp ../run/mods/*.jar mods/
           SRV_JAR=$(find . -maxdepth 1 -name 'forge-*.jar' ! -name '*installer*' -print -quit)
