@@ -39,4 +39,9 @@ Attribution: original mod by Itamio, MIT. Original source (now unavailable): htt
 
 ## Verification
 
-Green CI run IDs are recorded after each full pass in this file and in the commit history. `build.yml` verifies all 12 variants produce both jars; `behavior.yml` verifies 24 legs (12 product-present + 12 negative control) with no gamerule broadcast.
+Final green CI on HEAD:
+
+- Build: https://github.com/FrameFlags/KeepInventoryPorts/actions/runs/45563613900 — 12/12 variants, both jars each.
+- Behavior: https://github.com/FrameFlags/KeepInventoryPorts/actions/runs/45563614134 — 24/24 legs (12 product-present + 12 negative control), no gamerule broadcast.
+
+These run IDs precede the final documentation-only commit; the workflows themselves are unchanged.
