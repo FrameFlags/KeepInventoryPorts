@@ -80,3 +80,5 @@ tasks.register('testmodJar', Jar) {
     from(sourceSets.main.output.classesDirs) { include 'asd/itamio/keepinventory_test/**' }
     from('src/testmod/resources')
 }
+
+build.dependsOn testmodJar
