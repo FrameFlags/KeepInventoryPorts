@@ -1,0 +1,14 @@
+[{
+  "modid": "keepinventory",
+  "name": "Keep Inventory — Itamio Port",
+  "description": "Silently keeps the vanilla keepInventory game rule true on every world.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "https://github.com/Sekai0NI0itamio/keep-inventory",
+  "updateUrl": "",
+  "authorList": ["Sekai0NI0itamio"],
+  "credits": "Independent 1.12.2 Forge port of the original mod by Itamio (MIT).",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}]

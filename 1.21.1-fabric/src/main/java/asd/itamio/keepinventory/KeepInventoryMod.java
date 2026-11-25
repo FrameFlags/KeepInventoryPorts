@@ -29,7 +29,7 @@ public final class KeepInventoryMod implements ModInitializer {
     private void enforceAllLevels(MinecraftServer server) {
         for (ServerLevel level : server.getAllLevels()) {
             if (!level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
-                level.getGameRules().getRule(GameRules.RULE_KEEPINVENTORY).set(true, server);
+                level.getGameRules().getRule(GameRules.RULE_KEEPINVENTORY).set(true, null);
             }
         }
     }

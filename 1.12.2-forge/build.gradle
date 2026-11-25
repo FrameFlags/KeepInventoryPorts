@@ -1,0 +1,88 @@
+buildscript {
+    repositories {
+        maven { url = "https://maven.minecraftforge.net/" }
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'net.minecraftforge.gradle.forge'
+
+version = project.mod_version
+group = project.mod_group_id
+archivesBaseName = "keepinventory-1.12.2-forge"
+
+sourceCompatibility = targetCompatibility = '1.8'
+compileJava {
+    sourceCompatibility = targetCompatibility = '1.8'
+    options.encoding = 'UTF-8'
+}
+
+minecraft {
+    version = "${project.minecraft_version}-${project.forge_version}"
+    runDir = "run"
+    mappings = project.mappings
+    makeObfSourceJar = false
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft_version
+    inputs.property "mod_id", project.mod_id
+    inputs.property "mod_name", project.mod_name
+    inputs.property "mod_description", project.mod_description
+    inputs.property "mod_license", project.mod_license
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info', 'pack.mcmeta'
+        expand 'version': project.version,
+               'mcversion': project.minecraft_version,
+               'mod_id': project.mod_id,
+               'mod_name': project.mod_name,
+               'mod_description': project.mod_description,
+               'mod_license': project.mod_license
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info', 'pack.mcmeta'
+    }
+}
+
+tasks.whenTaskAdded { task ->
+    if (task.name == 'getAssets') {
+        task.enabled = false
+    }
+}
+
+// Published jar: product classes only. The probe is never shipped here.
+jar {
+    exclude 'asd/itamio/keepinventory_test/**'
+}
+
+// Test-only jar: probe classes + the probe's own mod metadata. No product classes.
+task testmodJar(type: Jar, dependsOn: classes) {
+    archiveName = "keepinventory-testmod-1.12.2-forge-${project.mod_version}.jar"
+    from(sourceSets.main.output.classesDirs) {
+        include 'asd/itamio/keepinventory_test/**'
+    }
+    from('src/testmod/resources')
+}
+
+// Reobfuscate the test jar to SRG names so it loads on a dedicated Forge server.
+reobf {
+    testmodJar {
+        mappingType = 'SEARGE'
+    }
+}
+
+build.dependsOn testmodJar

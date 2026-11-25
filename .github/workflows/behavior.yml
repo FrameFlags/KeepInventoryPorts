@@ -21,6 +21,22 @@ jobs:
           - { variant: 26.3-neoforge,  mc: '26.3',    loader: neoforge, mrt: neoforge, java: '25', gradle: '9.2.1', api: 'none',      product: 'false', control: negative }
           - { variant: 1.21.11-fabric, mc: '1.21.11', loader: fabric,   mrt: fabric,   java: '21', gradle: '9.5.0', api: 0.141.4, product: 'false', control: negative }
           - { variant: 1.21.1-fabric,  mc: '1.21.1',  loader: fabric,   mrt: fabric,   java: '21', gradle: '9.5.0', api: 0.107.0, product: 'false', control: negative }
+          - { variant: 1.12.2-forge, mc: '1.12.2', loader: forge, mrt: server, java: '8', gradle: '4.10.3', api: 'none', product: 'false', control: negative }
+          - { variant: 1.20.1-forge, mc: '1.20.1', loader: forge, mrt: forge, java: '17', gradle: '8.14.5', api: 'none', product: 'false', control: negative }
+          - { variant: 1.20.1-fabric, mc: '1.20.1', loader: fabric, mrt: fabric, java: '21', gradle: '9.5.1', api: 0.92.11, product: 'false', control: negative }
+          - { variant: 1.21.1-forge, mc: '1.21.1', loader: forge, mrt: forge, java: '21', gradle: '8.14.5', api: 'none', product: 'false', control: negative }
+          - { variant: 1.21.4-fabric, mc: '1.21.4', loader: fabric, mrt: fabric, java: '21', gradle: '9.5.0', api: 0.119.4, product: 'false', control: negative }
+          - { variant: 1.21.4-neoforge, mc: '1.21.4', loader: neoforge, mrt: neoforge, java: '21', gradle: '9.2.1', api: 'none', product: 'false', control: negative }
+          - { variant: 1.21.8-fabric, mc: '1.21.8', loader: fabric, mrt: fabric, java: '21', gradle: '9.5.0', api: 0.134.0, product: 'false', control: negative }
+          - { variant: 1.21.8-neoforge, mc: '1.21.8', loader: neoforge, mrt: neoforge, java: '21', gradle: '9.2.1', api: 'none', product: 'false', control: negative }
+          - { variant: 1.12.2-forge, mc: '1.12.2', loader: forge, mrt: server, java: '8', gradle: '4.10.3', api: 'none', product: 'true' }
+          - { variant: 1.20.1-forge, mc: '1.20.1', loader: forge, mrt: forge, java: '17', gradle: '8.14.5', api: 'none', product: 'true' }
+          - { variant: 1.20.1-fabric, mc: '1.20.1', loader: fabric, mrt: fabric, java: '21', gradle: '9.5.1', api: 0.92.11, product: 'true' }
+          - { variant: 1.21.1-forge, mc: '1.21.1', loader: forge, mrt: forge, java: '21', gradle: '8.14.5', api: 'none', product: 'true' }
+          - { variant: 1.21.4-fabric, mc: '1.21.4', loader: fabric, mrt: fabric, java: '21', gradle: '9.5.0', api: 0.119.4, product: 'true' }
+          - { variant: 1.21.4-neoforge, mc: '1.21.4', loader: neoforge, mrt: neoforge, java: '21', gradle: '9.2.1', api: 'none', product: 'true' }
+          - { variant: 1.21.8-fabric, mc: '1.21.8', loader: fabric, mrt: fabric, java: '21', gradle: '9.5.0', api: 0.134.0, product: 'true' }
+          - { variant: 1.21.8-neoforge, mc: '1.21.8', loader: neoforge, mrt: neoforge, java: '21', gradle: '9.2.1', api: 'none', product: 'true' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v5
@@ -49,6 +65,7 @@ jobs:
 
       - name: Launch Minecraft ${{ matrix.mc }} (${{ matrix.loader }}) with in-game probe
         id: mcrt
+        if: matrix.variant != '1.12.2-forge'
         continue-on-error: ${{ matrix.product == 'false' }}
         uses: headlesshq/mc-runtime-test@5.0.0
         with:
@@ -59,6 +76,43 @@ jobs:
           java: ${{ matrix.java }}
           fabric-api: ${{ matrix.api }}
           headlessmc-command: '--jvm "-DMcRuntimeGameTest=false"'
+
+      - name: Boot Forge 1.12.2 server with Mineflayer bot
+        if: matrix.variant == '1.12.2-forge'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p server && cd server
+          curl -fsSLO https://maven.minecraftforge.net/net/minecraftforge/forge/1.12.2-14.23.5.2847/forge-1.12.2-14.23.5.2847-installer.jar
+          java -jar forge-1.12.2-14.23.5.2847-installer.jar --installServer > install.log 2>&1 || { cat install.log; exit 1; }
+          echo "eula=true" > eula.txt
+          mkdir -p mods
+          cp ../run/mods/*.jar mods/
+          SRV_JAR=$(find . -maxdepth 1 -name 'forge-*.jar' ! -name '*installer*' -print -quit)
+          test -n "$SRV_JAR" || { echo "FAIL: no Forge server jar"; exit 1; }
+          java -jar "$SRV_JAR" nogui > server.log 2>&1 &
+          echo $! > server.pid
+          cd ..
+          for i in $(seq 1 90); do
+            grep -q 'Done (' server/server.log 2>/dev/null && break
+            sleep 2
+          done
+          grep -q 'Done (' server/server.log || { tail -60 server/server.log; exit 1; }
+          npm install mineflayer@4.39.0 --no-save >/dev/null 2>&1
+          node .github/scripts/mineflayer-idle.js > bot.log 2>&1 &
+          BOT_PID=$!
+          for i in $(seq 1 120); do
+            [ -f server/kip-result.txt ] && break
+            sleep 1
+          done
+          kill "$BOT_PID" 2>/dev/null || true
+          kill "$(cat server/server.pid)" 2>/dev/null || true
+          cp server/kip-result.txt kip-result.txt 2>/dev/null || true
+          mkdir -p run
+          cp server/run/kip-result.txt run/kip-result.txt 2>/dev/null || true
+          echo "=== bot log ==="; cat bot.log || true
+          echo "=== server log tail ==="; tail -40 server/server.log || true
+          test -f kip-result.txt
 
       - name: Assert behavior marker
         shell: bash
